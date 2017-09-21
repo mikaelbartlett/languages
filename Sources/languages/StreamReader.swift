@@ -7,18 +7,18 @@
 
 import Foundation
 
-class StreamReader  {
-    
-    let encoding : String.Encoding
-    let chunkSize : Int
-    var fileHandle : FileHandle?
-    let delimData : Data
-    var buffer : Data
-    var atEof : Bool
-    
+class StreamReader {
+
+    let encoding: String.Encoding
+    let chunkSize: Int
+    var fileHandle: FileHandle?
+    let delimData: Data
+    var buffer: Data
+    var atEof: Bool
+
     init?(path: String, delimiter: String = "\n", encoding: String.Encoding = .utf8,
           chunkSize: Int = 4096) {
-        
+
         guard let fileHandle = FileHandle(forReadingAtPath: path),
             let delimData = delimiter.data(using: encoding) else {
                 return nil
@@ -30,18 +30,18 @@ class StreamReader  {
         self.buffer = Data(capacity: chunkSize)
         self.atEof = false
     }
-    
+
     deinit {
         self.close()
     }
-    
+
     /// Return next line, or nil on EOF.
     func nextLine() -> String? {
         guard let fileHandle = fileHandle else {
             assertionFailure("Attempt to read from closed file")
             return nil
         }
-        
+
         // Read data chunks from file until a line delimiter is found:
         while !atEof {
             if let range = buffer.range(of: delimData) {
@@ -67,9 +67,9 @@ class StreamReader  {
         }
         return nil
     }
-    
+
     /// Start reading from the beginning of file.
-    func rewind() -> Void {
+    func rewind() {
         guard let fileHandle = fileHandle else {
             assertionFailure("Attempt to read from closed file")
             return
@@ -78,9 +78,9 @@ class StreamReader  {
         buffer.count = 0
         atEof = false
     }
-    
+
     /// Close the underlying file. No reading must be done after calling this method.
-    func close() -> Void {
+    func close() {
         fileHandle?.closeFile()
         fileHandle = nil
     }

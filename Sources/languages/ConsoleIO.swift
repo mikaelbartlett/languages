@@ -13,8 +13,8 @@ enum OutputType {
 }
 
 class ConsoleIO {
-    func writeMessage(_ message: String, to: OutputType = .standard) {
-        switch to {
+    func writeMessage(_ message: String, to outputType: OutputType = .standard) {
+        switch outputType {
         case .standard:
             print("\(message)")
         case .error:
@@ -24,7 +24,7 @@ class ConsoleIO {
 
     func printUsage() {
         let executableName = (CommandLine.arguments[0] as NSString).lastPathComponent
-        
+
         writeMessage("usage:")
         writeMessage("\(executableName) --csv {filename} --strings {filename}")
         writeMessage("or")

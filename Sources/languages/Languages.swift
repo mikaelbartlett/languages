@@ -13,7 +13,7 @@ enum OptionType: String {
     case strings = "strings"
     case help = "h"
     case unknown
-    
+
     init(value: String) {
         switch value {
         case "csv": self = .csv
@@ -30,16 +30,16 @@ class Languages {
 
     func staticMode() {
         var arguments = CommandLine.arguments[1...]
-        
+
         var options: [OptionType: String] = [:]
-        
+
         while let argument = arguments.popFirst() {
             let option = OptionType(value: String(argument[argument.index(argument.startIndex, offsetBy: 2)...]))
             switch option {
             case .csv:
                 guard let value = arguments.popFirst() else {
                     consoleIO.printUsage()
-                    return                    
+                    return
                 }
                 options[.csv] = value
             case .strings:
@@ -65,12 +65,16 @@ class Languages {
                 return
             }
         }
-        if let csvFile = options[.csv], let strings = options[.strings] {
+        if let csvFile = options[.csv] {
             let hashmap = csvFileToHashmap(file: csvFile)
-            hashmapToStrings(from: strings, translations: hashmap)
+            if let strings = options[.strings] {
+                hashmapToStrings(from: strings, translations: hashmap)
+            } else {
+                hashmapToStrings(translations: hashmap)
+            }
         }
     }
-    
+
     /**
      Creates an array of hashmaps from file at path.
      
@@ -91,7 +95,7 @@ class Languages {
             while let row = csv.next() {
                 guard let rowVariable = row.first else { continue }
                 for (index, column) in row[1...].enumerated() {
-                    if column.characters.count > 0 && index < translations.count  {
+                    if column.characters.count > 0 && index < translations.count {
                         translations[index][rowVariable] = column
                     }
                 }
@@ -102,7 +106,7 @@ class Languages {
         }
         return []
     }
-    
+
     /**
      Creates translation files in current directory.
      
@@ -133,7 +137,7 @@ class Languages {
             outputStream.close()
         }
     }
-    
+
     /**
      Creates translation files in current directory.
      
@@ -148,7 +152,7 @@ class Languages {
             let regex = try NSRegularExpression(pattern: regexPattern)
             for translation in translations {
                 //Ensure languge is present and createn of outputstream and reader
-                guard let language = translation["language"], let outputStream = OutputStream(toFileAtPath: "\(language).strings", append: false), let streamReader = StreamReader(path: template) else { return }                
+                guard let language = translation["language"], let outputStream = OutputStream(toFileAtPath: "\(language).strings", append: false), let streamReader = StreamReader(path: template) else { return }
                 outputStream.open()
                 //Read each line from template
                 while let line = streamReader.nextLine() {
@@ -171,7 +175,7 @@ class Languages {
                 outputStream.close()
             }
         } catch let error {
-            consoleIO.writeMessage(error.localizedDescription, to: .error)            
+            consoleIO.writeMessage(error.localizedDescription, to: .error)
         }
     }
 
